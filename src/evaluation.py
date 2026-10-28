@@ -1,14 +1,12 @@
 import os
 import joblib
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import KFold, cross_val_score
 
 # Backward-compatibility fallback for scikit-learn < 1.4
 try:
     from sklearn.metrics import root_mean_squared_error
 except ImportError:
-    from sklearn.metrics import mean_squared_error
-
     def root_mean_squared_error(y_true, y_pred):
         return float(mean_squared_error(y_true, y_pred, squared=False))
 
@@ -29,12 +27,14 @@ def evaluate_pipeline(pipeline, model_name: str, X_train, y_train, X_test, y_tes
     # Predict on held-out test data
     preds = pipeline.predict(X_test)
     mae = float(mean_absolute_error(y_test, preds))
+    mse = float(mean_squared_error(y_test, preds))
     rmse = float(root_mean_squared_error(y_test, preds))
     test_r2 = float(r2_score(y_test, preds))
 
     metrics = {
         "Model": model_name,
         "MAE": round(mae, 4),
+        "MSE": round(mse, 4),
         "RMSE": round(rmse, 4),
         "Test R²": round(test_r2, 4),
         "CV R² (Mean)": round(cv_mean, 4),

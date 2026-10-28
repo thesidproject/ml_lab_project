@@ -39,11 +39,42 @@ st.markdown(
         h3 { font-size: 1.4rem !important; font-weight: 600 !important; }
         p, div { font-size: 1.1rem !important; }
 
-        /* Larger Tab Labels */
+        /* Tab Bar Layout & Visual Separation */
+        div[data-baseweb="tab-list"] {
+            gap: 12px !important;
+            padding-bottom: 8px !important;
+            border-bottom: 2px solid rgba(128, 128, 128, 0.2) !important;
+        }
+
+        /* Distinct Tab Cards */
         button[data-baseweb="tab"] {
+            background-color: rgba(128, 128, 128, 0.08) !important;
+            border: 1px solid rgba(128, 128, 128, 0.25) !important;
+            border-radius: 8px !important;
+            padding: 10px 22px !important;
             font-size: 1.15rem !important;
             font-weight: 600 !important;
-            padding: 12px 24px !important;
+            color: inherit !important;
+            transition: all 0.2s ease-in-out !important;
+        }
+
+        /* Hover State */
+        button[data-baseweb="tab"]:hover {
+            background-color: rgba(128, 128, 128, 0.18) !important;
+            border-color: rgba(128, 128, 128, 0.5) !important;
+        }
+
+        /* Active / Selected Tab Card */
+        button[data-baseweb="tab"][aria-selected="true"] {
+            background-color: #1f6feb !important;
+            color: #ffffff !important;
+            border-color: #1f6feb !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        /* Remove default thin bottom highlight line */
+        div[data-baseweb="tab-highlight"] {
+            display: none !important;
         }
 
         /* Larger Metric Cards */
@@ -171,14 +202,14 @@ def try_load_existing_artifacts():
 # Try loading pre-existing models on startup
 try_load_existing_artifacts()
 
-# Tabbed Interface
+# Tabbed Interface (Clean & Distinct)
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
-        "🧹 1. Data & Missing Values",
-        "⚙️ 2. Split & Train Models",
-        "📊 3. Model Performance",
-        "📈 4. Actual vs. Predicted Chart",
-        "🚗 5. Vehicle Fuel Predictor",
+        "1. Data & Missing Values",
+        "2. Split & Train Models",
+        "3. Model Performance",
+        "4. Actual vs. Predicted Chart",
+        "5. Vehicle Fuel Predictor",
     ]
 )
 
@@ -333,24 +364,30 @@ with tab3:
             + " ± "
             + m_df["CV R² (Std)"].map("{:.4f}".format)
         )
-        display_table = m_df[["Model", "MAE", "RMSE", "Test R²", "CV R²"]].sort_values(
-            by="Test R²", ascending=False
-        )
+        display_table = m_df[
+            ["Model", "MAE", "MSE", "RMSE", "Test R²", "CV R²"]
+        ].sort_values(by="Test R²", ascending=False)
 
         st.dataframe(
             display_table.style.format(
-                {"MAE": "{:.4f}", "RMSE": "{:.4f}", "Test R²": "{:.4f}"}
+                {
+                    "MAE": "{:.4f}",
+                    "MSE": "{:.4f}",
+                    "RMSE": "{:.4f}",
+                    "Test R²": "{:.4f}",
+                }
             ),
             use_container_width=True,
             hide_index=True,
         )
 
         best_row = display_table.iloc[0]
-        bc1, bc2, bc3, bc4 = st.columns(4)
+        bc1, bc2, bc3, bc4, bc5 = st.columns(5)
         bc1.metric("Top Model (by Test R²)", best_row["Model"])
         bc2.metric("Test R²", f"{best_row['Test R²']:.4f}")
-        bc3.metric("Test RMSE", f"{best_row['RMSE']:.4f}")
-        bc4.metric("Test MAE", f"{best_row['MAE']:.4f}")
+        bc3.metric("Test MSE", f"{best_row['MSE']:.4f}")
+        bc4.metric("Test RMSE", f"{best_row['RMSE']:.4f}")
+        bc5.metric("Test MAE", f"{best_row['MAE']:.4f}")
     else:
         st.info("No models trained yet. Go to 'Tab 2: Split & Train Models' and click Train.")
 
