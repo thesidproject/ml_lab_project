@@ -4,6 +4,21 @@ __pycache__/
 *$py.class
 *.so
 
+# Machine Learning Model Artifacts & Binaries
+*.joblib
+*.pkl
+saved_models/**/*.joblib
+saved_models/*.joblib
+models/**/*.joblib
+models/*.joblib
+
+# Generated predictions and evaluation summaries
+data/test_predictions.csv
+saved_models/evaluation_metrics.json
+saved_models/metrics_summary.csv
+models/evaluation_metrics.json
+models/metrics_summary.csv
+
 # C extensions
 *.obj
 *.pyd
@@ -28,7 +43,35 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual environments & Conda
+# PyInstaller / Packaging
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*-checkpoint.ipynb
+
+# Environments
 .env
 .venv
 env/
@@ -37,11 +80,6 @@ ENV/
 env.bak/
 venv.bak/
 .conda/
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
-*-checkpoint.ipynb
 
 # IDEs and Editors
 .vscode/

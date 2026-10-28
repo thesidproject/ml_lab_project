@@ -1,8 +1,6 @@
-# ML Lab Project SEM - 5 
+# Predictive Analysis of Vehicle Fuel Efficiency (Auto MPG)
 
-## Predictive Analysis of Vehicle Fuel Efficiency (Auto MPG)
-
-A reproducible machine learning project for predicting vehicle fuel efficiency (Miles Per Gallon) using the classic Auto MPG dataset.
+A modular, reproducible machine learning system and interactive analytics studio for vehicle fuel efficiency (Miles Per Gallon) prediction using the Auto MPG dataset.
 
 ---
 
@@ -11,93 +9,107 @@ A reproducible machine learning project for predicting vehicle fuel efficiency (
 - **Task**: Supervised Regression
 - **Target Variable**: `mpg` (Fuel efficiency in Miles Per Gallon)
 - **Features**: `cylinders`, `displacement`, `horsepower`, `weight`, `acceleration`, `model year`, `origin`
-- **Models Benchmarked**:
-  1. **Linear Regression**
-  2. **K-Nearest Neighbors Regressor (`KNeighborsRegressor`)**
-  3. **Support Vector Machine (`SVR`)**
-  4. **Random Forest Regressor (`RandomForestRegressor`)**
+- **Architectural Design**: Each model is encapsulated in its own isolated module with dedicated scaling, pipeline construction, and standalone execution capability.
 
 ---
 
-## 2. Directory Structure
+## 2. Modular Directory Structure
 
 ```
 project/
 ├── data/
 │   ├── auto-mpg.csv               # Raw dataset
-│   └── test_predictions.csv      # Actual vs. predicted values for held-out test set
-├── models/
-│   ├── linear_regression.joblib       # Serialized trained pipeline
-│   ├── kneighbors_regressor.joblib    # Serialized trained pipeline
-│   ├── support_vector_machine.joblib  # Serialized trained pipeline
-│   ├── random_forest.joblib           # Serialized trained pipeline
-│   ├── evaluation_metrics.json        # Metric results
-│   └── metrics_summary.csv            # Tabular performance results
-├── src/
+│   └── test_predictions.csv      # Actual vs. predicted results on test split
+├── saved_models/                  # Serialized Model Artifacts (Ignored in Git)
+│   ├── linear_regression/         # Linear Regression serialized artifact
+│   ├── kneighbors_regressor/      # KNN Regressor serialized artifact
+│   ├── support_vector_machine/    # SVR serialized artifact
+│   ├── random_forest/             # Random Forest serialized artifact
+│   ├── evaluation_metrics.json    # JSON metrics summary
+│   └── metrics_summary.csv        # Tabular performance results
+├── src/                           # Model & Pipeline Source Code
 │   ├── __init__.py
-│   ├── data_cleaning.py          # Imputation, encoding, and data splitting
-│   └── train_models.py           # Selective scaling, 5-fold CV, test evaluation
-├── app.py                         # Streamlit Web Application
-├── requirements.txt               # Dependencies
+│   ├── data_cleaning.py           # Imputation, encoding, and data splitting
+│   ├── linear_regression/         # Linear Regression Source Code
+│   │   ├── __init__.py
+│   │   └── model.py
+│   ├── kneighbors_regressor/      # KNN Regressor Source Code
+│   │   ├── __init__.py
+│   │   └── model.py
+│   ├── support_vector_machine/    # SVR Source Code
+│   │   ├── __init__.py
+│   │   └── model.py
+│   ├── random_forest/             # Random Forest Source Code
+│   │   ├── __init__.py
+│   │   └── model.py
+│   ├── train_all.py               # Multi-model orchestrator
+│   └── train_models.py            # Entry point compatibility script
+├── app.py                         # Interactive Step-by-Step Streamlit Studio
+├── requirements.txt               # Pinned dependencies
+├── .gitignore                     # Git configuration
 └── README.md                      # Documentation
 ```
 
 ---
 
-## 3. Data Cleaning & Selective Scaling Strategy
+## 3. Interactive Web Studio Workflow (`app.py`)
 
-1. **Handling Missing Values**:
-   - The `horsepower` column contains 6 missing entries marked as `'?'`.
-   - Missing values are imputed using the **median horsepower of the vehicle's cylinder group** rather than a simple global mean.
-2. **Outlier Preservation**:
-   - Outliers are retained in the dataset to preserve valid physical performance characteristics of high-displacement vehicles.
-3. **Categorical Encoding**:
-   - `origin` (1: USA, 2: Europe, 3: Japan) is one-hot encoded using Scikit-Learn's `OneHotEncoder(categories=[[1, 2, 3]], drop='first')`.
-4. **Selective Feature Scaling (No Unnecessary Scaling)**:
-   - **KNeighborsRegressor**: Scaled with `StandardScaler` (distance calculations are sensitive to large magnitude differences).
-   - **Support Vector Machine (SVR)**: Scaled with `StandardScaler` (RBF kernel distance calculations require normalized feature spaces).
-   - **Linear Regression**: Unscaled (preserves direct physical interpretation of coefficients).
-   - **Random Forest**: Unscaled (tree-based splitting is invariant to monotonic feature transformations).
+Rather than showing static pre-computed outputs, the web interface operates as a live, hands-on ML studio:
 
----
-
-## 4. Model Evaluation & Benchmark Results
-
-All models were evaluated using **5-fold cross-validation on the 80% training set**, followed by final assessment on a **20% held-out test set** (`random_state=42`).
-
-| Model | MAE (Lower is better) | RMSE (Lower is better) | Test R² (Closer to 1.0) | 5-Fold CV R² (Mean ± Std) |
-| :--- | :---: | :---: | :---: | :---: |
-| **Support Vector Machine (SVR)** | **1.6196** | **2.0187** | **0.9242** | **0.8727 ± 0.0320** |
-| **Random Forest** | **1.5989** | 2.1632 | 0.9130 | 0.8510 ± 0.0278 |
-| **KNeighborsRegressor** | 1.8214 | 2.2605 | 0.9050 | 0.8429 ± 0.0164 |
-| **Linear Regression** | 2.2848 | 2.8866 | 0.8450 | 0.8024 ± 0.0192 |
-
-*Note: Non-linear models (SVR and Random Forest) demonstrated the highest predictive accuracy and variance explanation ($R^2 > 0.91$).*
+1. **Step 1: Data Inspection & Missing Value Resolution**:
+   - Displays the raw dataset.
+   - Highlights the 6 missing values (`'?'`) in the `horsepower` column and previews the affected vehicles.
+   - Lets the user choose between **Cylinder-Grouped Median Imputation** (preserves engine class variance) and Global Imputation, with instant before/after validation.
+2. **Step 2: Train / Test Splitting Configuration**:
+   - Interactive slider for Held-out Test Set percentage (10% to 40%).
+   - Random seed input for full reproducibility.
+   - Live sample count indicator (e.g. 318 training / 80 testing).
+3. **Step 3: Model Execution & 5-Fold Cross-Validation**:
+   - Checkboxes to include/exclude any of the 4 models.
+   - User clicks **"🚀 Train Selected Models with 5-Fold CV"** to trigger live training across the separate model modules with a visual progress spinner.
+4. **Step 4: Model Performance Comparison**:
+   - Sortable metrics table comparing **MAE, RMSE, Test R², and 5-Fold CV R² (Mean ± Std)**.
+   - Metric callout highlighting the best-performing model on the chosen split.
+5. **Step 5: Interactive Parity Chart**:
+   - Plotly scatter plot comparing Actual vs. Predicted MPG with an ideal $y=x$ dashed reference line and color-mapped absolute error tooltips.
+6. **Step 6: Live Vehicle MPG Prediction**:
+   - Real-time parameter inputs for custom vehicle specifications, returning instantaneous predictions in both **MPG** and **km/L**.
 
 ---
 
-## 5. Web Application Components
+## 4. Selective Scaling Strategy
 
-The Streamlit UI (`app.py`) provides three focused, clutter-free modules:
-1. **Model Performance**: Sortable evaluation table comparing MAE, RMSE, Test R², and Cross-Validation R² across all 4 models.
-2. **Interactive Comparison Chart**: Plotly parity scatter plot comparing Actual MPG vs. Predicted MPG with an ideal $y=x$ dashed reference line and color-mapped absolute error points.
-3. **Single Vehicle Prediction**: Parameter input fields for vehicle specifications (`cylinders`, `displacement`, `horsepower`, `weight`, `acceleration`, `model year`, `origin`), outputting instant MPG and km/L predictions from any selected model pipeline.
+| Model | Module Path | Scaling Strategy | Rationale |
+| :--- | :--- | :--- | :--- |
+| **Linear Regression** | `src/linear_regression/model.py` | **Unscaled** | Preserves direct physical interpretability of coefficients |
+| **KNeighborsRegressor** | `src/kneighbors_regressor/model.py` | **StandardScaler** | Distance metric is sensitive to feature magnitude differences |
+| **Support Vector Machine** | `src/support_vector_machine/model.py` | **StandardScaler** | RBF kernel requires standardized feature space |
+| **Random Forest** | `src/random_forest/model.py` | **Unscaled** | Decision tree splits are invariant to monotonic scaling |
 
 ---
 
-## 6. How to Run
+## 5. How to Run
 
 ### Step 1: Activate Environment
 ```bash
 conda activate main
 ```
 
-### Step 2: (Optional) Re-train Models & Regenerate Artifacts
+### Step 2: (Optional) Run Individual Models Standalone
+Any model can be trained and tested individually:
 ```bash
-python project/src/train_models.py
+python project/src/linear_regression/model.py
+python project/src/kneighbors_regressor/model.py
+python project/src/support_vector_machine/model.py
+python project/src/random_forest/model.py
 ```
 
-### Step 3: Launch the Streamlit Web Application
+Or run all models simultaneously:
+```bash
+python project/src/train_all.py
+```
+
+### Step 3: Launch the Interactive Studio
 ```bash
 streamlit run project/app.py
 ```

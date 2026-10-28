@@ -1,5 +1,0 @@
-Model,MAE,RMSE,Test R²,CV R² (Mean),CV R² (Std)
-Linear Regression,2.2848,2.8866,0.845,0.8024,0.0192
-KNeighborsRegressor,1.8214,2.2605,0.905,0.8429,0.0164
-Support Vector Machine,1.6196,2.0187,0.9242,0.8727,0.032
-Random Forest,1.5989,2.1632,0.913,0.851,0.0278
