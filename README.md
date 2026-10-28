@@ -6,17 +6,12 @@ A modular, reproducible machine learning system and interactive analytics studio
 
 ## How to Run
 
-### Step 1: Activate Environment
-```bash
-conda activate main
-```
-
-### Step 2: Install Required Libraries
+### Step 1: Install Required Libraries
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 3: (Optional) Run Individual Models Standalone
+### Step 2: (Optional) Run Individual Models Standalone
 Any model can be trained and tested individually:
 ```bash
 python src/linear_regression/model.py
@@ -30,7 +25,7 @@ Or run all models simultaneously:
 python src/train_all.py
 ```
 
-### Step 4: Launch the Interactive Studio
+### Step 3: Launch the Interactive Studio
 ```bash
 streamlit run app.py
 ```
