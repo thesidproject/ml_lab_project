@@ -20,89 +20,94 @@ from support_vector_machine.model import train_and_evaluate as train_svr
 
 # Page configuration
 st.set_page_config(
-    page_title="Auto MPG Fuel Efficiency Studio",
+    page_title="Auto MPG Fuel Efficiency",
     page_icon="🚗",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
-# Custom CSS for significantly larger, prominent fonts
+# Custom CSS: Reduce top padding, style tab buttons
 st.markdown(
     """
     <style>
-        /* Base typography */
+        /* Cut empty space at top */
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        /* Typography */
         html, body, [class*="css"] {
             font-size: 18px !important;
         }
-        /* Prominent Headings */
-        h1 { font-size: 2.3rem !important; font-weight: 700 !important; }
-        h2 { font-size: 1.8rem !important; font-weight: 600 !important; }
-        h3 { font-size: 1.4rem !important; font-weight: 600 !important; }
-        p, div { font-size: 1.1rem !important; }
-
-        /* Tab Bar Layout & Visual Separation */
-        div[data-baseweb="tab-list"] {
-            gap: 12px !important;
-            padding-bottom: 8px !important;
-            border-bottom: 2px solid rgba(128, 128, 128, 0.2) !important;
-        }
+        h1 { font-size: 2.1rem !important; font-weight: 700 !important; margin-bottom: 0.5rem !important; }
+        h2 { font-size: 1.6rem !important; font-weight: 600 !important; }
+        h3 { font-size: 1.3rem !important; font-weight: 600 !important; }
 
         /* Distinct Tab Cards */
+        div[data-baseweb="tab-list"] {
+            gap: 12px !important;
+            padding-bottom: 10px !important;
+            border-bottom: 2px solid rgba(128, 128, 128, 0.2) !important;
+        }
         button[data-baseweb="tab"] {
-            background-color: rgba(128, 128, 128, 0.08) !important;
-            border: 1px solid rgba(128, 128, 128, 0.25) !important;
+            background-color: rgba(128, 128, 128, 0.12) !important;
+            border: 1px solid rgba(128, 128, 128, 0.3) !important;
             border-radius: 8px !important;
-            padding: 10px 22px !important;
-            font-size: 1.15rem !important;
+            padding: 8px 22px !important;
+            font-size: 1.05rem !important;
             font-weight: 600 !important;
             color: inherit !important;
             transition: all 0.2s ease-in-out !important;
         }
-
-        /* Hover State */
+        button[data-baseweb="tab"] p,
+        button[data-baseweb="tab"] span {
+            font-size: 1.05rem !important;
+            font-weight: 600 !important;
+            color: inherit !important;
+        }
         button[data-baseweb="tab"]:hover {
-            background-color: rgba(128, 128, 128, 0.18) !important;
-            border-color: rgba(128, 128, 128, 0.5) !important;
+            background-color: rgba(128, 128, 128, 0.22) !important;
+            border-color: #2b6cb0 !important;
         }
-
-        /* Active / Selected Tab Card */
         button[data-baseweb="tab"][aria-selected="true"] {
-            background-color: #1f6feb !important;
+            background-color: #2b6cb0 !important;
+            border-color: #2b6cb0 !important;
+            box-shadow: 0 2px 8px rgba(43, 108, 176, 0.35) !important;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] p,
+        button[data-baseweb="tab"][aria-selected="true"] span {
             color: #ffffff !important;
-            border-color: #1f6feb !important;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25) !important;
+            font-weight: 700 !important;
         }
-
-        /* Remove default thin bottom highlight line */
-        div[data-baseweb="tab-highlight"] {
+        div[data-baseweb="tab-highlight"],
+        div[data-baseweb="tab-border"] {
             display: none !important;
+            background-color: transparent !important;
         }
 
-        /* Larger Metric Cards */
+        /* Metric card values */
         [data-testid="stMetricValue"] {
             font-size: 1.9rem !important;
             font-weight: 700 !important;
         }
         [data-testid="stMetricLabel"] {
-            font-size: 1.1rem !important;
+            font-size: 1.05rem !important;
             font-weight: 600 !important;
         }
 
-        /* Larger Form & Button Controls */
-        .stButton>button {
-            font-size: 1.15rem !important;
-            font-weight: 600 !important;
-            padding: 10px 24px !important;
-        }
-        label {
+        /* Primary Button */
+        .stButton>button, .stFormSubmitButton>button {
             font-size: 1.1rem !important;
-            font-weight: 500 !important;
+            font-weight: 600 !important;
+            padding: 8px 20px !important;
         }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.title("Auto MPG Predictive Analytics Studio")
+st.title("Auto MPG Predictive Analytics")
 
 # Load raw dataset
 @st.cache_data
@@ -119,11 +124,12 @@ def cleanup_all_artifacts():
     import shutil
 
     for folder in ["saved_models", "models"]:
-        for f in glob.glob(os.path.join(BASE_DIR, folder, "**", "*.joblib"), recursive=True):
-            try:
-                os.remove(f)
-            except OSError:
-                pass
+        for pattern in ["*.joblib", "**/*.joblib"]:
+            for f in glob.glob(os.path.join(BASE_DIR, folder, pattern), recursive=True):
+                try:
+                    os.remove(f)
+                except OSError:
+                    pass
 
     for path in [
         os.path.join(BASE_DIR, "data", "test_predictions.csv"),
@@ -145,17 +151,17 @@ def cleanup_all_artifacts():
                     pass
 
 
-# Sidebar: Minimal maintenance controls only
+# Sidebar: Minimal maintenance controls
 with st.sidebar:
-    st.header("Project Controls")
-    if st.button("🧹 Clean All Artifacts & Reset", use_container_width=True):
+    st.subheader("Controls")
+    if st.button("Reset Artifacts", use_container_width=True):
         cleanup_all_artifacts()
         st.session_state.clear()
         st.cache_data.clear()
         st.cache_resource.clear()
         st.rerun()
 
-# Automatically clean data using the standard pipeline
+# Clean data automatically
 cleaned_df = clean_missing_values(raw_df)
 
 # Initialize Session State
@@ -170,7 +176,7 @@ if "test_predictions_df" not in st.session_state:
 
 
 def try_load_existing_artifacts():
-    """Load existing model artifacts if available on disk and not yet in session."""
+    """Load existing model artifacts if available on disk."""
     metrics_path = os.path.join(BASE_DIR, "saved_models", "metrics_summary.csv")
     predictions_path = os.path.join(BASE_DIR, "data", "test_predictions.csv")
 
@@ -199,48 +205,46 @@ def try_load_existing_artifacts():
             pass
 
 
-# Try loading pre-existing models on startup
 try_load_existing_artifacts()
 
-# Tabbed Interface (Clean & Distinct)
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    [
-        "1. Data & Missing Values",
-        "2. Split & Train Models",
-        "3. Model Performance",
-        "4. Actual vs. Predicted Chart",
-        "5. Vehicle Fuel Predictor",
-    ]
+# Short, distinct tab names without numbers or emojis
+tab_data, tab_train, tab_chart, tab_results, tab_predict = st.tabs(
+    ["Data", "Train", "Chart", "Results", "Predict"]
 )
 
 # ==========================================
-# TAB 1: DATA & MISSING VALUES
+# TAB 1: DATA
 # ==========================================
-with tab1:
-    st.header("Data Inspection & Missing Value Analysis")
-    st.markdown("Inspect raw data, identify missing values, and review the cleaning function.")
+with tab_data:
+    st.header("Dataset Inspection & Cleaning")
 
-    c1, c2 = st.columns([3, 2])
-    with c1:
-        st.markdown("### Raw Dataset Preview")
-        st.dataframe(raw_df.head(8), use_container_width=True)
+    st.markdown("### Cleaned Dataset Preview")
+    st.dataframe(cleaned_df.head(10), use_container_width=True)
 
-    with c2:
-        st.markdown("### Missing Value Check")
-        missing_count = int((raw_df["horsepower"] == "?").sum())
-        st.metric("Missing Values Detected", f"{missing_count} rows in 'horsepower'")
+    missing_count = int((raw_df["horsepower"] == "?").sum())
 
-        if st.button("🔍 Inspect Missing Values", use_container_width=True):
-            st.session_state.show_missing = True
+    if "show_missing_inspection" not in st.session_state:
+        st.session_state.show_missing_inspection = False
 
-    if st.session_state.get("show_missing", False):
-        st.markdown("### Vehicles with Missing Horsepower ('?')")
+    st.markdown("### Missing Value Inspection")
+    col_btn, _ = st.columns([1, 2])
+    with col_btn:
+        if st.button("Inspect Missing Values", use_container_width=True):
+            st.session_state.show_missing_inspection = not st.session_state.show_missing_inspection
+
+    if st.session_state.show_missing_inspection:
+        st.warning(
+            f"Found {missing_count} vehicles containing missing horsepower values (marked as '?'). "
+            "These are automatically imputed using the median horsepower of their cylinder group."
+        )
+
+        st.markdown("### Vehicles with Missing Horsepower")
         missing_rows = raw_df[raw_df["horsepower"] == "?"][
             ["car name", "cylinders", "displacement", "horsepower", "weight"]
         ]
-        st.dataframe(missing_rows, use_container_width=True)
+        st.dataframe(missing_rows, use_container_width=True, hide_index=True)
 
-        st.markdown("### Cleaning Function Applied (`data_cleaning.py`)")
+        st.markdown("### Cleaning & Imputation Function (`src/data_cleaning.py`)")
         st.code(
             """def clean_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     cleaned = df.copy()
@@ -249,25 +253,26 @@ with tab1:
     cleaned["horsepower"] = cleaned["horsepower"].fillna(
         cleaned.groupby("cylinders")["horsepower"].transform("median")
     )
+    # Global median fallback if any remain
+    cleaned["horsepower"] = cleaned["horsepower"].fillna(cleaned["horsepower"].median())
+    # Place 'car name' as the first column for clean preview
+    if "car name" in cleaned.columns:
+        cols = ["car name"] + [c for c in cleaned.columns if c != "car name"]
+        cleaned = cleaned[cols]
     return cleaned""",
             language="python",
         )
 
-        st.success(
-            f"✅ Cleaned Dataset Ready: All missing values resolved. 0 missing values remain across all {len(cleaned_df)} rows."
-        )
-
 # ==========================================
-# TAB 2: SPLIT & TRAIN MODELS
+# TAB 2: TRAIN
 # ==========================================
-with tab2:
-    st.header("Train / Test Splitting & Model Training")
-    st.markdown("Configure the data split, select models, and trigger training with 5-fold cross-validation.")
+with tab_train:
+    st.header("Data Splitting & Model Training")
 
-    s_col1, s_col2, s_col3 = st.columns(3)
-    with s_col1:
-        test_ratio = st.slider("Test Set Split Ratio (%)", min_value=10, max_value=40, value=20, step=5)
-    with s_col2:
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    with col_s1:
+        test_ratio = st.slider("Test Split (%)", min_value=10, max_value=40, value=20, step=5)
+    with col_s2:
         random_seed = st.number_input(
             "Random State (Seed)",
             min_value=0,
@@ -276,11 +281,13 @@ with tab2:
             step=1,
             help="Fixed seed ensuring deterministic splits and identical reproducible results.",
         )
-    with s_col3:
+    with col_s3:
         n_total = len(cleaned_df)
         n_test = int(n_total * (test_ratio / 100.0))
         n_train = n_total - n_test
-        st.metric("Dataset Partition", f"Train: {n_train} | Test: {n_test}")
+        st.metric("Train Samples", n_train)
+    with col_s4:
+        st.metric("Test Samples", n_test)
 
     # Feature and Target Split
     features = ["cylinders", "displacement", "horsepower", "weight", "acceleration", "model year", "origin"]
@@ -291,41 +298,43 @@ with tab2:
         X, y, test_size=(test_ratio / 100.0), random_state=random_seed
     )
 
-    st.markdown("### Select Models to Train")
-    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-    with m_col1:
-        use_lr = st.checkbox("Linear Regression (Unscaled)", value=True)
-    with m_col2:
-        use_knn = st.checkbox("KNeighborsRegressor (StandardScaler)", value=True)
-    with m_col3:
-        use_svr = st.checkbox("Support Vector Machine (StandardScaler)", value=True)
-    with m_col4:
-        use_rf = st.checkbox("Random Forest (Unscaled)", value=True)
+    selected_models = st.multiselect(
+        "Select Models to Train",
+        options=[
+            "Linear Regression",
+            "KNeighborsRegressor",
+            "Support Vector Machine",
+            "Random Forest",
+        ],
+        default=[
+            "Linear Regression",
+            "KNeighborsRegressor",
+            "Support Vector Machine",
+            "Random Forest",
+        ],
+    )
 
-    if st.button("🚀 Train Selected Models with 5-Fold CV", type="primary", use_container_width=True):
-        kf = KFold(n_splits=5, shuffle=True, random_state=random_seed)
+    if st.button("Train Selected Models", type="primary", use_container_width=True):
+        runner_map = {
+            "Linear Regression": (train_lr, "linear_regression"),
+            "KNeighborsRegressor": (train_knn, "kneighbors_regressor"),
+            "Support Vector Machine": (train_svr, "support_vector_machine"),
+            "Random Forest": (train_rf, "random_forest"),
+        }
 
-        selected_runners = []
-        if use_lr:
-            selected_runners.append(("Linear Regression", train_lr, "linear_regression"))
-        if use_knn:
-            selected_runners.append(("KNeighborsRegressor", train_knn, "kneighbors_regressor"))
-        if use_svr:
-            selected_runners.append(("Support Vector Machine", train_svr, "support_vector_machine"))
-        if use_rf:
-            selected_runners.append(("Random Forest", train_rf, "random_forest"))
+        selected_runners = [(name, runner_map[name][0], runner_map[name][1]) for name in selected_models if name in runner_map]
 
         if not selected_runners:
             st.warning("Please select at least one model to train.")
         else:
-            with st.spinner("Training models with 5-fold cross-validation and saving to saved_models/..."):
+            with st.spinner("Training models with 5-fold cross-validation..."):
+                kf = KFold(n_splits=5, shuffle=True, random_state=random_seed)
                 trained_pipes = {}
                 metrics_list = []
                 test_preds_df = X_test.copy()
                 test_preds_df["Actual MPG"] = y_test.values
 
                 for name, runner_fn, folder_name in selected_runners:
-                    # Save trained model to project/saved_models/<model_name>/
                     save_dir = os.path.join(BASE_DIR, "saved_models", folder_name)
                     pipe, metrics, preds = runner_fn(
                         X_train, y_train, X_test, y_test, kf=kf, save_dir=save_dir
@@ -340,7 +349,7 @@ with tab2:
                 st.session_state.test_predictions_df = test_preds_df
                 st.session_state.models_trained = True
 
-                # Persist evaluation summaries to disk
+                # Persist summaries to disk
                 st.session_state.metrics_df.to_csv(
                     os.path.join(BASE_DIR, "saved_models", "metrics_summary.csv"), index=False
                 )
@@ -348,27 +357,131 @@ with tab2:
                     os.path.join(BASE_DIR, "data", "test_predictions.csv"), index=False
                 )
 
-            st.success(
-                f"✅ Training completed! Trained models saved directly to 'project/saved_models/'."
+            st.success(f"Training complete. {len(selected_runners)} models saved.")
+
+# ==========================================
+# TAB 3: CHART
+# ==========================================
+with tab_chart:
+    st.header("Actual vs. Predicted MPG")
+
+    if (
+        st.session_state.test_predictions_df is not None
+        and len(st.session_state.trained_pipelines) > 0
+    ):
+        chart_col, _ = st.columns([1, 2])
+        with chart_col:
+            chart_model = st.selectbox(
+                "Select Model",
+                options=list(st.session_state.trained_pipelines.keys()),
             )
 
+        pred_col = f"Predicted_{chart_model}"
+        if pred_col not in st.session_state.test_predictions_df.columns:
+            st.warning(f"Predictions for '{chart_model}' were not found in current test predictions. Please retrain.")
+        else:
+            y_actual = st.session_state.test_predictions_df["Actual MPG"]
+            y_predicted = st.session_state.test_predictions_df[pred_col]
+            abs_errors = np.abs(y_actual - y_predicted)
+
+            min_val = min(y_actual.min(), y_predicted.min()) - 2
+            max_val = max(y_actual.max(), y_predicted.max()) + 2
+
+            fig = go.Figure()
+
+            # Perfect prediction dashed line (y = x)
+            fig.add_trace(
+                go.Scatter(
+                    x=[min_val, max_val],
+                    y=[min_val, max_val],
+                    mode="lines",
+                    name="Ideal (y = x)",
+                    line=dict(color="#888888", dash="dash", width=2),
+                    showlegend=False,
+                )
+            )
+
+            # Actual vs Predicted points
+            fig.add_trace(
+                go.Scatter(
+                    x=y_actual,
+                    y=y_predicted,
+                    mode="markers",
+                    name=chart_model,
+                    marker=dict(
+                        size=10,
+                        color=abs_errors,
+                        colorscale="Viridis",
+                        showscale=True,
+                        colorbar=dict(title="Absolute Error"),
+                        opacity=0.85,
+                    ),
+                    text=[
+                        f"Actual: {a:.1f} MPG<br>Predicted: {p:.1f} MPG<br>Error: {e:.2f} MPG"
+                        for a, p, e in zip(y_actual, y_predicted, abs_errors)
+                    ],
+                    hoverinfo="text",
+                    showlegend=False,
+                )
+            )
+
+            fig.update_layout(
+                title=f"Actual vs. Predicted — {chart_model}",
+                xaxis_title="Actual MPG",
+                yaxis_title="Predicted MPG",
+                xaxis=dict(range=[min_val, max_val]),
+                yaxis=dict(range=[min_val, max_val]),
+                height=440,
+                margin=dict(l=40, r=40, t=45, b=55),
+                template="plotly_white",
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No models trained yet. Go to the 'Train' tab and click Train Selected Models.")
+
 # ==========================================
-# TAB 3: MODEL PERFORMANCE
+# TAB 4: RESULTS (PERFORMANCE)
 # ==========================================
-with tab3:
-    st.header("Model Performance Analytics")
+with tab_results:
+    st.header("Model Performance")
+
     if st.session_state.metrics_df is not None and not st.session_state.metrics_df.empty:
         m_df = st.session_state.metrics_df.copy()
-        m_df["CV R²"] = (
-            m_df["CV R² (Mean)"].map("{:.4f}".format)
-            + " ± "
-            + m_df["CV R² (Std)"].map("{:.4f}".format)
-        )
-        display_table = m_df[
-            ["Model", "MAE", "MSE", "RMSE", "Test R²", "CV R²"]
-        ].sort_values(by="Test R²", ascending=False)
+        if "CV R² (Mean)" in m_df.columns and "CV R² (Std)" in m_df.columns:
+            m_df["CV R²"] = (
+                m_df["CV R² (Mean)"].map("{:.4f}".format)
+                + " ± "
+                + m_df["CV R² (Std)"].map("{:.4f}".format)
+            )
+        elif "CV R²" not in m_df.columns:
+            m_df["CV R²"] = "N/A"
 
-        st.dataframe(
+        if "MSE" not in m_df.columns and "RMSE" in m_df.columns:
+            m_df["MSE"] = (m_df["RMSE"] ** 2).round(4)
+
+        all_cols = ["Model", "MAE", "MSE", "RMSE", "Test R²", "CV R²"]
+        show_cols = [c for c in all_cols if c in m_df.columns]
+        display_table = m_df[show_cols]
+        if "Test R²" in display_table.columns:
+            display_table = display_table.sort_values(by="Test R²", ascending=False)
+
+        best_row = display_table.iloc[0]
+
+        # Bordered container for the winning model
+        with st.container(border=True):
+            st.markdown(f"### Top Model: **{best_row['Model']}**")
+            b1, b2, b3, b4, b5 = st.columns(5)
+            b1.metric("Test R²", f"{best_row['Test R²']:.4f}")
+            b2.metric("Test MSE", f"{best_row['MSE']:.4f}")
+            b3.metric("Test RMSE", f"{best_row['RMSE']:.4f}")
+            b4.metric("Test MAE", f"{best_row['MAE']:.4f}")
+            b5.metric("CV R²", best_row["CV R²"])
+
+        st.caption("Metrics guide: Higher R² is better; lower error (MAE, MSE, RMSE) is better.")
+
+        # Highlight best values: Max for R², Min for errors
+        styled_df = (
             display_table.style.format(
                 {
                     "MAE": "{:.4f}",
@@ -376,119 +489,45 @@ with tab3:
                     "RMSE": "{:.4f}",
                     "Test R²": "{:.4f}",
                 }
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        best_row = display_table.iloc[0]
-        bc1, bc2, bc3, bc4, bc5 = st.columns(5)
-        bc1.metric("Top Model (by Test R²)", best_row["Model"])
-        bc2.metric("Test R²", f"{best_row['Test R²']:.4f}")
-        bc3.metric("Test MSE", f"{best_row['MSE']:.4f}")
-        bc4.metric("Test RMSE", f"{best_row['RMSE']:.4f}")
-        bc5.metric("Test MAE", f"{best_row['MAE']:.4f}")
-    else:
-        st.info("No models trained yet. Go to 'Tab 2: Split & Train Models' and click Train.")
-
-# ==========================================
-# TAB 4: ACTUAL VS. PREDICTED CHART
-# ==========================================
-with tab4:
-    st.header("Interactive Actual vs. Predicted Parity Chart")
-    if (
-        st.session_state.test_predictions_df is not None
-        and len(st.session_state.trained_pipelines) > 0
-    ):
-        chart_model = st.selectbox(
-            "Select Model to Inspect:",
-            options=list(st.session_state.trained_pipelines.keys()),
-        )
-
-        pred_col = f"Predicted_{chart_model}"
-        y_actual = st.session_state.test_predictions_df["Actual MPG"]
-        y_predicted = st.session_state.test_predictions_df[pred_col]
-        abs_errors = np.abs(y_actual - y_predicted)
-
-        min_val = min(y_actual.min(), y_predicted.min()) - 2
-        max_val = max(y_actual.max(), y_predicted.max()) + 2
-
-        fig = go.Figure()
-
-        # Perfect prediction dashed line (y = x)
-        fig.add_trace(
-            go.Scatter(
-                x=[min_val, max_val],
-                y=[min_val, max_val],
-                mode="lines",
-                name="Perfect Prediction (y = x)",
-                line=dict(color="#888888", dash="dash", width=2),
             )
+            .highlight_max(subset=["Test R²"], color="#c6f6d5")
+            .highlight_min(subset=["MAE", "MSE", "RMSE"], color="#c6f6d5")
         )
 
-        # Actual vs Predicted points
-        fig.add_trace(
-            go.Scatter(
-                x=y_actual,
-                y=y_predicted,
-                mode="markers",
-                name=chart_model,
-                marker=dict(
-                    size=10,
-                    color=abs_errors,
-                    colorscale="Viridis",
-                    showscale=True,
-                    colorbar=dict(title="Absolute Error"),
-                    opacity=0.85,
-                ),
-                text=[
-                    f"Actual: {a:.1f} MPG<br>Predicted: {p:.1f} MPG<br>Error: {e:.2f} MPG"
-                    for a, p, e in zip(y_actual, y_predicted, abs_errors)
-                ],
-                hoverinfo="text",
-            )
-        )
-
-        fig.update_layout(
-            title=f"Actual vs. Predicted Fuel Efficiency — {chart_model}",
-            xaxis_title="Actual MPG",
-            yaxis_title="Predicted MPG",
-            xaxis=dict(range=[min_val, max_val]),
-            yaxis=dict(range=[min_val, max_val]),
-            height=580,
-            template="plotly_white",
-            legend=dict(yanchor="top", y=0.98, xanchor="left", x=0.02),
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
     else:
-        st.info("No models trained yet. Go to 'Tab 2: Split & Train Models' and click Train.")
+        st.info("No models trained yet. Go to the 'Train' tab and click Train Selected Models.")
 
 # ==========================================
-# TAB 5: VEHICLE FUEL PREDICTOR
+# TAB 5: PREDICT
 # ==========================================
-with tab5:
-    st.header("Vehicle Fuel Efficiency Estimator (Inference)")
-    st.markdown("Specify vehicle characteristics to predict estimated fuel efficiency:")
+with tab_predict:
+    st.header("Vehicle Fuel Efficiency Predictor")
 
     if len(st.session_state.trained_pipelines) > 0:
         with st.form("vehicle_prediction_form"):
+            # Model selector first in its own full row
+            in_model_choice = st.selectbox(
+                "Prediction Model",
+                options=list(st.session_state.trained_pipelines.keys()),
+            )
+
             row1_c1, row1_c2, row1_c3 = st.columns(3)
             with row1_c1:
                 in_cylinders = st.selectbox("Cylinders", options=[3, 4, 5, 6, 8], index=1)
             with row1_c2:
                 in_displacement = st.number_input(
-                    "Displacement (cu. in.)", min_value=60.0, max_value=500.0, value=150.0, step=5.0
+                    "Displacement (cu. in.)", min_value=60, max_value=500, value=150, step=1
                 )
             with row1_c3:
                 in_horsepower = st.number_input(
-                    "Horsepower", min_value=40.0, max_value=300.0, value=95.0, step=1.0
+                    "Horsepower", min_value=40, max_value=300, value=95, step=1
                 )
 
             row2_c1, row2_c2, row2_c3 = st.columns(3)
             with row2_c1:
                 in_weight = st.number_input(
-                    "Weight (lbs)", min_value=1500.0, max_value=5500.0, value=2800.0, step=50.0
+                    "Weight (lbs)", min_value=1500, max_value=5500, value=2800, step=10
                 )
             with row2_c2:
                 in_acceleration = st.number_input(
@@ -496,29 +535,22 @@ with tab5:
                     min_value=5.0,
                     max_value=30.0,
                     value=15.5,
-                    step=0.5,
+                    step=0.1,
+                    format="%.1f",
                 )
             with row2_c3:
                 in_year = st.slider(
-                    "Model Year (1970 - 1982)", min_value=70, max_value=82, value=76
+                    "Model Year (1970 - 1982)", min_value=70, max_value=82, value=76, step=1
                 )
 
-            row3_c1, row3_c2 = st.columns([1, 2])
-            with row3_c1:
-                in_origin_label = st.selectbox(
-                    "Origin", options=["USA (1)", "Europe (2)", "Japan (3)"], index=0
-                )
-                in_origin_map = {"USA (1)": 1, "Europe (2)": 2, "Japan (3)": 3}
-                in_origin_val = in_origin_map[in_origin_label]
-
-            with row3_c2:
-                in_model_choice = st.selectbox(
-                    "Select Prediction Model",
-                    options=list(st.session_state.trained_pipelines.keys()),
-                )
+            in_origin_label = st.selectbox(
+                "Origin", options=["USA (1)", "Europe (2)", "Japan (3)"], index=0
+            )
+            in_origin_map = {"USA (1)": 1, "Europe (2)": 2, "Japan (3)": 3}
+            in_origin_val = in_origin_map[in_origin_label]
 
             submit_pred = st.form_submit_button(
-                "Calculate Estimated Fuel Efficiency", use_container_width=True
+                "Predict Fuel Efficiency", type="primary", use_container_width=True
             )
 
         if submit_pred:
@@ -536,12 +568,21 @@ with tab5:
                 ]
             )
 
-            chosen_pipe = st.session_state.trained_pipelines[in_model_choice]
-            est_mpg = max(1.0, float(chosen_pipe.predict(input_row)[0]))
-            est_kmpl = est_mpg * 0.425144
+            if in_model_choice in st.session_state.trained_pipelines:
+                chosen_pipe = st.session_state.trained_pipelines[in_model_choice]
+                try:
+                    raw_pred = chosen_pipe.predict(input_row)[0]
+                    est_mpg = max(1.0, float(raw_pred))
+                    est_kmpl = est_mpg * 0.425144
 
-            res_col1, res_col2 = st.columns(2)
-            res_col1.success(f"### Predicted Fuel Efficiency: **{est_mpg:.2f} MPG**")
-            res_col2.info(f"### Metric Equivalent: **{est_kmpl:.2f} km/L**")
+                    # Large, prominent result container below button
+                    with st.container(border=True):
+                        r1, r2 = st.columns(2)
+                        r1.metric("Predicted Fuel Efficiency", f"{est_mpg:.1f} MPG")
+                        r2.metric("Metric Equivalent", f"{est_kmpl:.1f} km/L")
+                except Exception as err:
+                    st.error(f"Prediction failed with error: {err}")
+            else:
+                st.warning(f"Selected model '{in_model_choice}' is not available. Please train it in the 'Train' tab.")
     else:
-        st.info("Please train the models first in 'Tab 2: Split & Train Models'.")
+        st.info("Please train the models first in the 'Train' tab.")

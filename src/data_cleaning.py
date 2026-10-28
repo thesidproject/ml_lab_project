@@ -30,11 +30,14 @@ def find_dataset_path(file_path: str = None) -> str:
 
 
 def clean_missing_values(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean missing '?' in horsepower using cylinder-grouped median with global fallback."""
+    """Clean missing '?' in horsepower using cylinder-grouped median with global fallback, placing 'car name' first."""
     cleaned = df.copy()
     cleaned["horsepower"] = pd.to_numeric(cleaned["horsepower"].replace("?", np.nan))
     cylinder_median = cleaned.groupby("cylinders")["horsepower"].transform("median")
     cleaned["horsepower"] = cleaned["horsepower"].fillna(cylinder_median).fillna(cleaned["horsepower"].median())
+    if "car name" in cleaned.columns:
+        cols = ["car name"] + [c for c in cleaned.columns if c != "car name"]
+        cleaned = cleaned[cols]
     return cleaned
 
 

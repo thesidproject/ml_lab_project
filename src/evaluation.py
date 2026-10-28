@@ -7,8 +7,10 @@ from sklearn.model_selection import KFold, cross_val_score
 try:
     from sklearn.metrics import root_mean_squared_error
 except ImportError:
+    import numpy as np
+
     def root_mean_squared_error(y_true, y_pred):
-        return float(mean_squared_error(y_true, y_pred, squared=False))
+        return float(np.sqrt(mean_squared_error(y_true, y_pred)))
 
 
 def evaluate_pipeline(pipeline, model_name: str, X_train, y_train, X_test, y_test, kf=None, save_dir: str = None):
