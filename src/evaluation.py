@@ -1,7 +1,16 @@
 import os
 import joblib
-from sklearn.metrics import mean_absolute_error, r2_score, root_mean_squared_error
+from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import KFold, cross_val_score
+
+# Backward-compatibility fallback for scikit-learn < 1.4
+try:
+    from sklearn.metrics import root_mean_squared_error
+except ImportError:
+    from sklearn.metrics import mean_squared_error
+
+    def root_mean_squared_error(y_true, y_pred):
+        return float(mean_squared_error(y_true, y_pred, squared=False))
 
 
 def evaluate_pipeline(pipeline, model_name: str, X_train, y_train, X_test, y_test, kf=None, save_dir: str = None):
@@ -35,7 +44,13 @@ def evaluate_pipeline(pipeline, model_name: str, X_train, y_train, X_test, y_tes
     # Save model artifact if destination directory is provided
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
-        filename = model_name.lower().replace(" ", "_") + ".joblib"
+        filename_map = {
+            "Linear Regression": "linear_regression.joblib",
+            "KNeighborsRegressor": "kneighbors_regressor.joblib",
+            "Support Vector Machine": "support_vector_machine.joblib",
+            "Random Forest": "random_forest.joblib",
+        }
+        filename = filename_map.get(model_name, model_name.lower().replace(" ", "_") + ".joblib")
         joblib.dump(pipeline, os.path.join(save_dir, filename))
 
     return pipeline, metrics, preds

@@ -29,20 +29,20 @@ def find_dataset_path(file_path: str = None) -> str:
     raise FileNotFoundError("Could not find auto-mpg.csv in standard project paths.")
 
 
+def clean_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean missing '?' in horsepower using cylinder-grouped median with global fallback."""
+    cleaned = df.copy()
+    cleaned["horsepower"] = pd.to_numeric(cleaned["horsepower"].replace("?", np.nan))
+    cylinder_median = cleaned.groupby("cylinders")["horsepower"].transform("median")
+    cleaned["horsepower"] = cleaned["horsepower"].fillna(cylinder_median).fillna(cleaned["horsepower"].median())
+    return cleaned
+
+
 def load_and_clean_data(file_path: str = None) -> pd.DataFrame:
     """Load Auto MPG dataset and clean missing values."""
     resolved_path = find_dataset_path(file_path)
     df = pd.read_csv(resolved_path)
-
-    # Convert horsepower to numeric, replacing '?' with NaN
-    df["horsepower"] = pd.to_numeric(df["horsepower"].replace("?", np.nan))
-
-    # Impute missing horsepower using cylinder-group median
-    df["horsepower"] = df["horsepower"].fillna(
-        df.groupby("cylinders")["horsepower"].transform("median")
-    )
-
-    return df
+    return clean_missing_values(df)
 
 
 def get_feature_target_split(df: pd.DataFrame):

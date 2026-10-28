@@ -23,7 +23,7 @@ def build_pipeline():
     prep = ColumnTransformer(
         transformers=[
             ("num", StandardScaler(), num_cols),
-            ("cat", OneHotEncoder(categories=[[1, 2, 3]], drop="first"), cat_cols),
+            ("cat", OneHotEncoder(categories=[[1, 2, 3]], drop="first", handle_unknown="ignore"), cat_cols),
         ]
     )
 
