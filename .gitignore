@@ -102,3 +102,5 @@ ehthumbs.db
 # Temporary / scratch files
 tmp/
 temp/
+*.zip
+data/vehicles.csv
