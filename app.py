@@ -26,54 +26,64 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Custom CSS: Reduce top padding, style tab buttons
+# Custom CSS: Reduce top padding, balanced typography, prominent tab buttons (Pink Theme)
 st.markdown(
     """
     <style>
         /* Cut empty space at top */
         .block-container {
-            padding-top: 1.5rem !important;
-            padding-bottom: 2rem !important;
+            padding-top: 1.0rem !important;
+            padding-bottom: 1.5rem !important;
         }
 
-        /* Typography */
+        /* High-Contrast Balanced Typography - Scaled slightly for full viewport fit */
         html, body, [class*="css"] {
-            font-size: 18px !important;
+            font-size: 16.5px !important;
         }
-        h1 { font-size: 2.1rem !important; font-weight: 700 !important; margin-bottom: 0.5rem !important; }
-        h2 { font-size: 1.6rem !important; font-weight: 600 !important; }
-        h3 { font-size: 1.3rem !important; font-weight: 600 !important; }
+        p, span, div, li {
+            font-size: 1.0rem !important;
+            font-weight: 500;
+        }
+        h1 { font-size: 1.95rem !important; font-weight: 700 !important; margin-bottom: 0.35rem !important; }
+        h2 { font-size: 1.5rem !important; font-weight: 700 !important; margin-top: 0.5rem !important; margin-bottom: 0.35rem !important; }
+        h3 { font-size: 1.25rem !important; font-weight: 700 !important; margin-top: 0.4rem !important; }
 
-        /* Distinct Tab Cards */
+        /* Widget & Input Labels */
+        label, [data-testid="stWidgetLabel"] p {
+            font-size: 1.02rem !important;
+            font-weight: 600 !important;
+        }
+
+        /* Distinct Tab Cards with Noticeably Bigger Tab Names (Pink Theme) */
         div[data-baseweb="tab-list"] {
-            gap: 12px !important;
+            gap: 10px !important;
             padding-bottom: 10px !important;
-            border-bottom: 2px solid rgba(128, 128, 128, 0.2) !important;
+            border-bottom: 2px solid rgba(128, 128, 128, 0.25) !important;
         }
         button[data-baseweb="tab"] {
             background-color: rgba(128, 128, 128, 0.12) !important;
-            border: 1px solid rgba(128, 128, 128, 0.3) !important;
+            border: 1.5px solid rgba(128, 128, 128, 0.35) !important;
             border-radius: 8px !important;
-            padding: 8px 22px !important;
-            font-size: 1.05rem !important;
+            padding: 8px 20px !important;
+            font-size: 1.15rem !important;
             font-weight: 600 !important;
             color: inherit !important;
             transition: all 0.2s ease-in-out !important;
         }
         button[data-baseweb="tab"] p,
         button[data-baseweb="tab"] span {
-            font-size: 1.05rem !important;
+            font-size: 1.15rem !important;
             font-weight: 600 !important;
             color: inherit !important;
         }
         button[data-baseweb="tab"]:hover {
-            background-color: rgba(128, 128, 128, 0.22) !important;
-            border-color: #2b6cb0 !important;
+            background-color: rgba(219, 39, 119, 0.15) !important;
+            border-color: #db2777 !important;
         }
         button[data-baseweb="tab"][aria-selected="true"] {
-            background-color: #2b6cb0 !important;
-            border-color: #2b6cb0 !important;
-            box-shadow: 0 2px 8px rgba(43, 108, 176, 0.35) !important;
+            background-color: #db2777 !important;
+            border-color: #db2777 !important;
+            box-shadow: 0 3px 10px rgba(219, 39, 119, 0.35) !important;
         }
         button[data-baseweb="tab"][aria-selected="true"] p,
         button[data-baseweb="tab"][aria-selected="true"] span {
@@ -88,19 +98,27 @@ st.markdown(
 
         /* Metric card values */
         [data-testid="stMetricValue"] {
-            font-size: 1.9rem !important;
+            font-size: 1.85rem !important;
             font-weight: 700 !important;
         }
         [data-testid="stMetricLabel"] {
-            font-size: 1.05rem !important;
+            font-size: 1.02rem !important;
             font-weight: 600 !important;
         }
 
         /* Primary Button */
         .stButton>button, .stFormSubmitButton>button {
-            font-size: 1.1rem !important;
+            font-size: 1.05rem !important;
             font-weight: 600 !important;
             padding: 8px 20px !important;
+            background-color: #db2777 !important;
+            border-color: #db2777 !important;
+            color: #ffffff !important;
+        }
+        .stButton>button:hover, .stFormSubmitButton>button:hover {
+            background-color: #be185d !important;
+            border-color: #be185d !important;
+            color: #ffffff !important;
         }
     </style>
     """,
@@ -208,8 +226,8 @@ def try_load_existing_artifacts():
 try_load_existing_artifacts()
 
 # Short, distinct tab names without numbers or emojis
-tab_data, tab_train, tab_chart, tab_results, tab_predict = st.tabs(
-    ["Data", "Train", "Chart", "Results", "Predict"]
+tab_data, tab_eda, tab_train, tab_chart, tab_results, tab_predict = st.tabs(
+    ["Data", "EDA", "Train", "Chart", "Results", "Predict"]
 )
 
 # ==========================================
@@ -244,24 +262,114 @@ with tab_data:
         ]
         st.dataframe(missing_rows, use_container_width=True, hide_index=True)
 
-        st.markdown("### Cleaning & Imputation Function (`src/data_cleaning.py`)")
-        st.code(
-            """def clean_missing_values(df: pd.DataFrame) -> pd.DataFrame:
-    cleaned = df.copy()
-    cleaned["horsepower"] = pd.to_numeric(cleaned["horsepower"].replace("?", np.nan))
-    # Impute missing horsepower using cylinder-group median
-    cleaned["horsepower"] = cleaned["horsepower"].fillna(
-        cleaned.groupby("cylinders")["horsepower"].transform("median")
+# ==========================================
+# TAB 2: EDA (EXPLORATORY DATA ANALYSIS)
+# ==========================================
+with tab_eda:
+    st.header("Exploratory Data Analysis")
+
+    st.markdown(
+        "Scatter plot analysis using Orange's visualization tools revealed several "
+        "critical relationships between features and the target variable."
     )
-    # Global median fallback if any remain
-    cleaned["horsepower"] = cleaned["horsepower"].fillna(cleaned["horsepower"].median())
-    # Place 'car name' as the first column for clean preview
-    if "car name" in cleaned.columns:
-        cols = ["car name"] + [c for c in cleaned.columns if c != "car name"]
-        cleaned = cleaned[cols]
-    return cleaned""",
-            language="python",
+
+    candidate_features = [
+        "weight",
+        "displacement",
+        "horsepower",
+        "acceleration",
+        "cylinders",
+        "model year",
+        "origin",
+    ]
+
+    feature_labels = {
+        "weight": "Weight (lbs)",
+        "displacement": "Displacement (cu. in.)",
+        "horsepower": "Horsepower",
+        "acceleration": "Acceleration (0-60 mph, sec)",
+        "cylinders": "Cylinders",
+        "model year": "Model Year (1970 - 1982)",
+        "origin": "Origin (1: USA, 2: Europe, 3: Japan)",
+    }
+
+    col_sel, col_stat = st.columns([1, 1])
+    with col_sel:
+        y_feat = st.selectbox(
+            "Select Feature for Y-axis:",
+            options=candidate_features,
+            index=0,  # weight
+            format_func=lambda x: feature_labels.get(x, x.title()),
         )
+
+    corr_val = cleaned_df[y_feat].corr(cleaned_df["mpg"])
+
+    with col_stat:
+        st.markdown(
+            f"<div style='padding-top: 1.6rem; font-size: 1.08rem; font-weight: 700;'>"
+            f"Pearson Correlation with MPG: <span style='color: #db2777;'>r = {corr_val:+.4f}</span></div>",
+            unsafe_allow_html=True,
+        )
+
+    # Big Spacious Scatter Plot (Orange style)
+    fig_big = go.Figure()
+
+    # Scatter points
+    fig_big.add_trace(
+        go.Scatter(
+            x=cleaned_df["mpg"],
+            y=cleaned_df[y_feat],
+            mode="markers",
+            name="Vehicles",
+            marker=dict(
+                size=10,
+                color="#db2777",
+                opacity=0.8,
+                line=dict(width=1, color="#831843"),
+            ),
+            text=[
+                f"<b>{name}</b><br>MPG: {m:.1f}<br>{feature_labels.get(y_feat, y_feat)}: {val}"
+                for name, m, val in zip(
+                    cleaned_df["car name"],
+                    cleaned_df["mpg"],
+                    cleaned_df[y_feat],
+                )
+            ],
+            hoverinfo="text",
+        )
+    )
+
+    # Polynomial Trendline to visualize curve
+    try:
+        p_fit = np.polyfit(cleaned_df["mpg"], cleaned_df[y_feat], deg=2)
+        x_range = np.linspace(cleaned_df["mpg"].min(), cleaned_df["mpg"].max(), 100)
+        y_fit = np.polyval(p_fit, x_range)
+        fig_big.add_trace(
+            go.Scatter(
+                x=x_range,
+                y=y_fit,
+                mode="lines",
+                name="Trendline",
+                line=dict(color="#4b5563", width=2.5, dash="dash"),
+            )
+        )
+    except Exception:
+        pass
+
+    fig_big.update_layout(
+        title=dict(
+            text=f"{feature_labels.get(y_feat, y_feat.title())} vs. Fuel Efficiency (MPG)",
+            font=dict(size=17, weight=700),
+        ),
+        xaxis_title="Fuel Efficiency — MPG (Target Variable)",
+        yaxis_title=feature_labels.get(y_feat, y_feat.title()),
+        height=470,
+        margin=dict(l=45, r=30, t=40, b=40),
+        template="plotly_white",
+        hoverlabel=dict(font_size=13),
+    )
+
+    st.plotly_chart(fig_big, use_container_width=True)
 
 # ==========================================
 # TAB 2: TRAIN
@@ -490,8 +598,8 @@ with tab_results:
                     "Test R²": "{:.4f}",
                 }
             )
-            .highlight_max(subset=["Test R²"], color="#c6f6d5")
-            .highlight_min(subset=["MAE", "MSE", "RMSE"], color="#c6f6d5")
+            .highlight_max(subset=["Test R²"], color="#fbcfe8")
+            .highlight_min(subset=["MAE", "MSE", "RMSE"], color="#fbcfe8")
         )
 
         st.dataframe(styled_df, use_container_width=True, hide_index=True)
