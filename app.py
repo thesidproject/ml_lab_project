@@ -26,7 +26,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Custom CSS: Reduce top padding, balanced typography, prominent tab buttons (Pink Theme)
+# Custom CSS: Reduce top padding, prominent headings, bigger tabs with more distance (Pink Theme)
 st.markdown(
     """
     <style>
@@ -36,59 +36,104 @@ st.markdown(
             padding-bottom: 1.5rem !important;
         }
 
-        /* High-Contrast Balanced Typography - Scaled slightly for full viewport fit */
+        /* High-Contrast Balanced Typography */
         html, body, [class*="css"] {
             font-size: 16.5px !important;
         }
         p, span, div, li {
-            font-size: 1.0rem !important;
+            font-size: 1.05rem !important;
             font-weight: 500;
         }
-        h1 { font-size: 1.95rem !important; font-weight: 700 !important; margin-bottom: 0.35rem !important; }
-        h2 { font-size: 1.5rem !important; font-weight: 700 !important; margin-top: 0.5rem !important; margin-bottom: 0.35rem !important; }
-        h3 { font-size: 1.25rem !important; font-weight: 700 !important; margin-top: 0.4rem !important; }
 
-        /* Widget & Input Labels */
-        label, [data-testid="stWidgetLabel"] p {
-            font-size: 1.02rem !important;
-            font-weight: 600 !important;
+        /* Noticeably Bigger, Prominent Headings across all Streamlit classes */
+        h1, 
+        [data-testid="stHeadingWithActionElements"] h1,
+        [data-testid="stMarkdownContainer"] h1,
+        .stHeading h1 { 
+            font-size: 2.85rem !important; 
+            font-weight: 800 !important; 
+            line-height: 1.2 !important;
+            margin-bottom: 0.6rem !important; 
+        }
+        h2, 
+        [data-testid="stHeadingWithActionElements"] h2,
+        [data-testid="stMarkdownContainer"] h2,
+        .stHeading h2 { 
+            font-size: 2.25rem !important; 
+            font-weight: 800 !important; 
+            line-height: 1.25 !important;
+            margin-top: 0.8rem !important; 
+            margin-bottom: 0.5rem !important; 
+        }
+        h3, 
+        [data-testid="stHeadingWithActionElements"] h3,
+        [data-testid="stMarkdownContainer"] h3,
+        .stHeading h3 { 
+            font-size: 1.85rem !important; 
+            font-weight: 800 !important; 
+            line-height: 1.3 !important;
+            margin-top: 0.7rem !important; 
+            margin-bottom: 0.4rem !important;
         }
 
-        /* Distinct Tab Cards with Noticeably Bigger Tab Names (Pink Theme) */
-        div[data-baseweb="tab-list"] {
-            gap: 10px !important;
-            padding-bottom: 10px !important;
+        /* Noticeably Bigger Form & Widget Labels (Test Split (%), Select Models to Train, Select Model, etc.) */
+        label, 
+        label p,
+        label span,
+        [data-testid="stWidgetLabel"],
+        [data-testid="stWidgetLabel"] p,
+        [data-testid="stWidgetLabel"] span,
+        [data-testid="stWidgetLabel"] * {
+            font-size: 1.35rem !important;
+            font-weight: 700 !important;
+            line-height: 1.3 !important;
+        }
+
+        /* Distinct Tab Cards with Noticeably Bigger Tab Names & More Distance */
+        div[data-baseweb="tab-list"],
+        [data-testid="stTabs"] [data-baseweb="tab-list"],
+        div[role="tablist"] {
+            gap: 28px !important;
+            padding-bottom: 16px !important;
             border-bottom: 2px solid rgba(128, 128, 128, 0.25) !important;
         }
-        button[data-baseweb="tab"] {
+        button[data-baseweb="tab"],
+        button[role="tab"],
+        [data-testid="stTabs"] button[data-baseweb="tab"],
+        [data-testid="stTabs"] button[role="tab"] {
             background-color: rgba(128, 128, 128, 0.12) !important;
-            border: 1.5px solid rgba(128, 128, 128, 0.35) !important;
-            border-radius: 8px !important;
-            padding: 8px 20px !important;
-            font-size: 1.15rem !important;
-            font-weight: 600 !important;
+            border: 2px solid rgba(128, 128, 128, 0.35) !important;
+            border-radius: 10px !important;
+            padding: 12px 30px !important;
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
             color: inherit !important;
             transition: all 0.2s ease-in-out !important;
         }
-        button[data-baseweb="tab"] p,
-        button[data-baseweb="tab"] span {
-            font-size: 1.15rem !important;
-            font-weight: 600 !important;
+        button[data-baseweb="tab"] *,
+        button[role="tab"] *,
+        [data-testid="stTabs"] button[data-baseweb="tab"] *,
+        [data-testid="stTabs"] button[role="tab"] * {
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+            line-height: 1.3 !important;
             color: inherit !important;
         }
-        button[data-baseweb="tab"]:hover {
-            background-color: rgba(219, 39, 119, 0.15) !important;
+        button[data-baseweb="tab"]:hover,
+        button[role="tab"]:hover {
+            background-color: rgba(219, 39, 119, 0.18) !important;
             border-color: #db2777 !important;
         }
-        button[data-baseweb="tab"][aria-selected="true"] {
+        button[data-baseweb="tab"][aria-selected="true"],
+        button[role="tab"][aria-selected="true"] {
             background-color: #db2777 !important;
             border-color: #db2777 !important;
-            box-shadow: 0 3px 10px rgba(219, 39, 119, 0.35) !important;
+            box-shadow: 0 4px 12px rgba(219, 39, 119, 0.4) !important;
         }
-        button[data-baseweb="tab"][aria-selected="true"] p,
-        button[data-baseweb="tab"][aria-selected="true"] span {
+        button[data-baseweb="tab"][aria-selected="true"] *,
+        button[role="tab"][aria-selected="true"] * {
             color: #ffffff !important;
-            font-weight: 700 !important;
+            font-weight: 800 !important;
         }
         div[data-baseweb="tab-highlight"],
         div[data-baseweb="tab-border"] {
@@ -96,21 +141,63 @@ st.markdown(
             background-color: transparent !important;
         }
 
-        /* Metric card values */
-        [data-testid="stMetricValue"] {
-            font-size: 1.85rem !important;
+        /* Significantly Bigger Metric Card Values & Labels */
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricValue"] div,
+        [data-testid="stMetricValue"] * {
+            font-size: 2.5rem !important;
+            font-weight: 800 !important;
+        }
+        [data-testid="stMetricLabel"],
+        [data-testid="stMetricLabel"] p,
+        [data-testid="stMetricLabel"] * {
+            font-size: 1.35rem !important;
             font-weight: 700 !important;
         }
-        [data-testid="stMetricLabel"] {
-            font-size: 1.02rem !important;
+
+        /* Significantly Bigger Selected Items & Form Inputs throughout UI */
+        div[data-baseweb="select"] * {
+            font-size: 1.22rem !important;
+            font-weight: 600 !important;
+        }
+        div[data-baseweb="popover"] *,
+        ul[role="listbox"] li {
+            font-size: 1.2rem !important;
+            font-weight: 600 !important;
+        }
+        div[data-baseweb="tag"],
+        div[data-baseweb="tag"] span,
+        span[data-baseweb="tag"] {
+            font-size: 1.15rem !important;
+            font-weight: 600 !important;
+            padding: 4px 10px !important;
+        }
+        input, select, textarea, div[data-baseweb="input"] input {
+            font-size: 1.22rem !important;
+            font-weight: 600 !important;
+        }
+        div[data-testid="stSlider"] div,
+        div[data-testid="stSlider"] span {
+            font-size: 1.15rem !important;
+            font-weight: 600 !important;
+        }
+
+        /* Significantly Bigger Dataframe Table Fonts (MAE, MSE, RMSE Table & Preview) */
+        div[data-testid="stDataFrame"],
+        div[data-testid="stDataFrame"] * {
+            font-size: 1.22rem !important;
+            font-weight: 600 !important;
+        }
+        div[data-testid="stTable"] * {
+            font-size: 1.25rem !important;
             font-weight: 600 !important;
         }
 
         /* Primary Button */
         .stButton>button, .stFormSubmitButton>button {
-            font-size: 1.05rem !important;
+            font-size: 1.1rem !important;
             font-weight: 600 !important;
-            padding: 8px 20px !important;
+            padding: 9px 22px !important;
             background-color: #db2777 !important;
             border-color: #db2777 !important;
             color: #ffffff !important;
@@ -236,15 +323,46 @@ tab_data, tab_eda, tab_train, tab_chart, tab_results, tab_predict = st.tabs(
 with tab_data:
     st.header("Dataset Inspection & Cleaning")
 
-    st.markdown("### Cleaned Dataset Preview")
+    st.subheader("Cleaned Dataset Preview")
     st.dataframe(cleaned_df.head(10), use_container_width=True)
 
+    # Duplicate Rows Inspection
+    if "show_duplicate_inspection" not in st.session_state:
+        st.session_state.show_duplicate_inspection = False
+
+    st.subheader("Duplicate Rows Inspection")
+    col_dup_btn, _ = st.columns([1, 2])
+    with col_dup_btn:
+        if st.button("Check Duplicate Rows", use_container_width=True):
+            st.session_state.show_duplicate_inspection = not st.session_state.show_duplicate_inspection
+
+    # Remove duplicates can ONLY be run after checking duplicate rows
+    if st.session_state.show_duplicate_inspection:
+        dup_count = int(raw_df.duplicated().sum())
+        if dup_count == 0:
+            st.success("No duplicate rows detected across all 398 records in the dataset.")
+        else:
+            st.warning(f"Found {dup_count} duplicate rows.")
+            st.dataframe(raw_df[raw_df.duplicated(keep=False)], use_container_width=True)
+
+        col_rm_btn, _ = st.columns([1, 2])
+        with col_rm_btn:
+            if st.button("Remove Duplicate Rows", use_container_width=True):
+                st.session_state.show_remove_duplicates = not st.session_state.get("show_remove_duplicates", False)
+
+        if st.session_state.get("show_remove_duplicates", False):
+            if dup_count == 0:
+                st.info("No exact duplicate rows found to remove (0 duplicates). Dataset is already completely unique with 398 rows.")
+            else:
+                st.success(f"Removed {dup_count} exact duplicate row(s). Unique rows remaining: {len(raw_df) - dup_count}.")
+
+    # Missing Value Inspection
     missing_count = int((raw_df["horsepower"] == "?").sum())
 
     if "show_missing_inspection" not in st.session_state:
         st.session_state.show_missing_inspection = False
 
-    st.markdown("### Missing Value Inspection")
+    st.subheader("Missing Value Inspection")
     col_btn, _ = st.columns([1, 2])
     with col_btn:
         if st.button("Inspect Missing Values", use_container_width=True):
@@ -256,7 +374,7 @@ with tab_data:
             "These are automatically imputed using the median horsepower of their cylinder group."
         )
 
-        st.markdown("### Vehicles with Missing Horsepower")
+        st.subheader("Vehicles with Missing Horsepower")
         missing_rows = raw_df[raw_df["horsepower"] == "?"][
             ["car name", "cylinders", "displacement", "horsepower", "weight"]
         ]
@@ -465,7 +583,20 @@ with tab_train:
                     os.path.join(BASE_DIR, "data", "test_predictions.csv"), index=False
                 )
 
-            st.success(f"Training complete. {len(selected_runners)} models saved.")
+            st.success(f"Training complete. All {len(selected_runners)} selected models have been successfully trained, evaluated, and serialized.")
+            st.markdown(
+                """
+                <div style='background-color: rgba(219, 39, 119, 0.12); border: 2px solid #db2777; border-radius: 8px; padding: 14px 18px; margin-top: 10px; font-size: 1.15rem; font-weight: 700; color: inherit;'>
+                    📁 <b>Artifacts Processed & Stored:</b>
+                    <ul style='margin: 8px 0 0 22px; padding: 0; font-size: 1.1rem; font-weight: 600;'>
+                        <li><b>Trained Models:</b> Serialized and saved into <code>saved_models/</code></li>
+                        <li><b>Test Predictions:</b> Exported and saved into <code>data/test_predictions.csv</code></li>
+                        <li><b>Summary Metrics:</b> Stored in <code>saved_models/metrics_summary.csv</code></li>
+                    </ul>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 # ==========================================
 # TAB 3: CHART
@@ -600,6 +731,7 @@ with tab_results:
             )
             .highlight_max(subset=["Test R²"], color="#fbcfe8")
             .highlight_min(subset=["MAE", "MSE", "RMSE"], color="#fbcfe8")
+            .set_properties(**{"font-size": "1.25rem", "font-weight": "600"})
         )
 
         st.dataframe(styled_df, use_container_width=True, hide_index=True)
