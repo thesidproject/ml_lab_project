@@ -104,3 +104,6 @@ tmp/
 temp/
 *.zip
 data/vehicles.csv
+
+# Project Report directory
+report/

@@ -1,8 +1,6 @@
 # Predictive Analysis of Vehicle Fuel Efficiency (Auto MPG)
 
-A modular, reproducible machine learning system and interactive analytics studio for vehicle fuel efficiency (Miles Per Gallon) prediction using the Auto MPG dataset.
-
----
+# ML Lab Project Sem 5
 
 ## How to Run
 
