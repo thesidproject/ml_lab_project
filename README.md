@@ -9,7 +9,11 @@
 pip install -r requirements.txt
 ```
 
-### Step 2: (Optional) Run Individual Models Standalone
+### Step 2: Launch the Interactive Studio
+```bash
+streamlit run app.py
+```
+### Step 3: (Optional) Run Individual Models Standalone
 Any model can be trained and tested individually:
 ```bash
 python src/linear_regression/model.py
@@ -21,9 +25,4 @@ python src/random_forest/model.py
 Or run all models simultaneously:
 ```bash
 python src/train_all.py
-```
-
-### Step 3: Launch the Interactive Studio
-```bash
-streamlit run app.py
 ```
